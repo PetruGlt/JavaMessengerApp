@@ -15,12 +15,27 @@ public class ClientThread extends Thread {
             // Get the request from the input stream: client → server
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            /// Read login request ( username:pass )
+
             String request = in.readLine();
-             // Send the response to the oputput stream: server → client
-            PrintWriter out = new PrintWriter(socket.getOutputStream());
-            String raspuns = "Hello " + request + "!";
-            out.println(raspuns);
-            out.flush();
+            String[] credentials = request.split(":");
+            if(credentials.length != 2){
+                out.println("Invalid request format. Usage: username:password");
+            }
+
+            String username = credentials[0];
+            String password = credentials[1];
+
+            if(checkLoginCredentials(username, password)) {
+                out.println("Success login!");
+            }
+            else{
+                out.println("Invalid credentials.");
+            }
+
+
         } catch (IOException e) {
             System.err.println("Communication error... " + e);
         } finally {
@@ -30,5 +45,9 @@ public class ClientThread extends Thread {
         }
     }
 
-    public void checkLoginCredentials();
+    /// TODO
+    ///
+    public boolean checkLoginCredentials(String user, String pass){
+        return false;
+    }
 }

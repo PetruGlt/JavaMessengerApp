@@ -6,6 +6,7 @@ import java.net.Socket;
 
 public class Server {
     public static final int PORT = 8100;
+    public static int users = 0;
 
     public Server() throws IOException {
         ServerSocket serverSocket = null;
@@ -14,9 +15,18 @@ public class Server {
             serverSocket = new ServerSocket(PORT);
             while (true) {
                 System.out.println("Waiting for connection...");
-                Socket socket = serverSocket.accept();
 
-                new ClientThread(socket).start();
+                Socket socket = serverSocket.accept();
+                boolean ok = true;
+                if(ok){
+                    users++;
+                    System.out.println("Connection established. Online users: " + users);
+                    new ClientThread(socket).start();
+                } else {
+                    ok = false;
+                }
+
+
             }
         } catch (IOException e){
             System.err.println("Error: " + e.getMessage());
