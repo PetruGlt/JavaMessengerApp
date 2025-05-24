@@ -10,6 +10,7 @@ public class ClientThread extends Thread {
     private Socket socket = null ;
     public ClientThread (Socket socket) { this.socket = socket ; }
     public void run () {
+
         try {
             // Get the request from the input stream: client → server
             BufferedReader in = new BufferedReader(
@@ -28,4 +29,6 @@ public class ClientThread extends Thread {
             } catch (IOException e) { System.err.println (e); }
         }
     }
+
+    public void checkLoginCredentials();
 }
