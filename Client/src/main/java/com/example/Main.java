@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -47,10 +48,14 @@ public class Main extends Application {
             String password = passwordField.getText().trim();
 
             if (validateLogin(username, password)) {
-                /// TODO
-                ///  here a clientID linked with the logged account is recieved from the server
+
+                /// TODO: here a clientID linked with the logged account is recieved from the server
                 String clientID = "1";
-                showMainMessengerPage(clientID);
+                try {
+                    showMainMessengerPage(clientID);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             } else {
                 showAlert("Login Failed", "Invalid username or password.");
             }
@@ -80,8 +85,13 @@ public class Main extends Application {
     }
 
     // Method to show the main messenger page
-    private void showMainMessengerPage(String clientID) {
+    private void showMainMessengerPage(String clientID) throws IOException {
         // Create the ListView for recent conversations on the left
+        try {
+            Client client = new Client();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         ListView<String> conversationList = new ListView<>();
         conversationList.setPrefWidth(150);
         conversationList.getItems().addAll("John", "Alice", "Bob"); // Example conversations
@@ -114,8 +124,8 @@ public class Main extends Application {
         sendButton.setOnAction(e -> {
             String message = messageInput.getText().trim();
             if (!message.isEmpty()) {
-                /// TODO
-                ///  List of group of recipients
+
+                /// TODO: Edit the list of group of recipients
                 Message newMessage = new Message(clientID, message, new ArrayList<>(List.of(2,3)));
 
                 System.out.println(newMessage);
@@ -123,13 +133,15 @@ public class Main extends Application {
                 Gson gson = new Gson();
                 String jsonMessage = gson.toJson(newMessage);
 
-                /// TODO
-                ///  sendMessageToServer(jsonMessage);
+                /// TODO: sendMessageToServer(jsonMessage);
 
-                addMessage(messageBox, message, "right");
-                messageInput.clear();
-
-                mockReply(messageBox);
+                ///  TODO:
+                ///  This stuff shouldn't be here.. addMessage should be called after recieving package from server (parsing it), smth like:
+                ///         addMessage(messageBox, message.getContent(), getAlignment(message.getSenderID, clientID))
+//                addMessage(messageBox, message, "right");
+//                messageInput.clear();
+//
+//                mockReply(messageBox);
             }
 
         });
@@ -159,6 +171,8 @@ public class Main extends Application {
     }
 
     // Method to add a message to the VBox with either right or left alignment
+    /// TODO: Here, addMessage should have as @params: VBox messageBox, message.getContent, getAlignment <- if message.getSenderID != clientID return left else return right
+    ///
     private void addMessage(VBox messageBox, String message, String alignment) {
         // Create a label for the message
         Label messageLabel = new Label(message);
@@ -166,6 +180,7 @@ public class Main extends Application {
         messageLabel.setMaxWidth(300);
 
         // Create timestamp
+        /// TODO: Here it will be smth like message.getTime (returns type Date)
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         Label timeLabel = new Label(timestamp);
         timeLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #666666;");
@@ -191,6 +206,14 @@ public class Main extends Application {
         }
 
         messageBox.getChildren().add(messageContainer);
+    }
+
+    /// TODO: Make use of this in addMessage
+    private String getAlignment(String senderID, String clientID){
+        if(senderID.equals(clientID))
+            return "right";
+        else
+            return "left";
     }
 
     // Method to simulate a mock reply after a message is sent
