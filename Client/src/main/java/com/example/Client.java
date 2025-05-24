@@ -1,9 +1,6 @@
 package com.example;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -15,16 +12,17 @@ public class Client {
     public Client() throws IOException {
         try (
                 Socket socket = new Socket(serverAddress, PORT);
-                PrintWriter out =
-                        new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(socket.getInputStream())) ) {
-// Send a request to the server
-            String request = "Wor";
-            out.println(request);
-// Wait the response from the server ("Hello World!")
-            String response = in.readLine ();
-            System.out.println(response);
+                PrintWriter socketOut = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader terminalIn = new BufferedReader(new InputStreamReader (System.in));
+                BufferedReader socketIN = new BufferedReader(new InputStreamReader(socket.getInputStream()));){
+                    System.out.print("Please enter your username: ");
+                    String username = terminalIn.readLine();
+                    System.out.print("Please enter your password: ");
+                    String password = terminalIn.readLine();
+                    socketOut.println(username + ":" + password);
+                    socketOut.flush();
+                    String response = socketIN.readLine();
+                    System.out.println(response);
         } catch (UnknownHostException e) {
             System.err.println("No server listening... " + e);
         }
