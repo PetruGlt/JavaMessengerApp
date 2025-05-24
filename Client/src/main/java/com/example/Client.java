@@ -8,9 +8,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
+    private String serverAddress = "127.0.0.1"; // The server's IP address
+    private int PORT = 8100; // The server's port
+
+
     public Client() throws IOException {
-        String serverAddress = "127.0.0.1"; // The server's IP address
-        int PORT = 8100; // The server's port
         try (
                 Socket socket = new Socket(serverAddress, PORT);
                 PrintWriter out =
