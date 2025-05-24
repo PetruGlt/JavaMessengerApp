@@ -87,14 +87,22 @@ public class Main extends Application {
     // Method to show the main messenger page
     private void showMainMessengerPage(String clientID) throws IOException {
         // Create the ListView for recent conversations on the left
+        final String[] selectedConversation = {null};
         try {
             Client client = new Client();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         ListView<String> conversationList = new ListView<>();
         conversationList.setPrefWidth(150);
         conversationList.getItems().addAll("John", "Alice", "Bob"); // Example conversations
+
+        // Set up a listener to update the selectedConversation when a conversation is selected
+        conversationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            selectedConversation[0] = newValue; // Store the selected conversation
+            System.out.println("Selected conversation: " + selectedConversation[0]); // Just to verify it's being updated
+        });
 
         // Create a VBox for messages to allow different alignment
         VBox messageBox = new VBox();
