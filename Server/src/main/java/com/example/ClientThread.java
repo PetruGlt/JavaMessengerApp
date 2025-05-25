@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-
+import java.sql.Connection;
+import java.util.Date;
+//TODO Possible problem , util.DATE si sql.DATE , s-ar putea sa trebuiascasa ne mutam pe slq.DATE
 public class ClientThread extends Thread {
     private Socket socket = null ;
-    public ClientThread (Socket socket) { this.socket = socket ; }
+    private Connection connection = null;
+    private Integer currentGroupID = null;
+    private Date lastRecievedMessageTime=null;
+    public ClientThread (Socket socket , Connection connection) { this.socket = socket ;this.connection=connection;}
     public void run () {
 
         try {
@@ -30,6 +35,12 @@ public class ClientThread extends Thread {
 
             if(checkLoginCredentials(username, password)) {
                 out.println("Success login!");
+                Thread reader = new Thread( new SocketReciever(in, connection, this));
+                Thread writer = new Thread(new SocketSender(out, connection, this));
+                reader.start();
+                writer.start();
+                reader.join();
+                writer.join();
             }
             else{
                 out.println("Invalid credentials.");
@@ -38,7 +49,11 @@ public class ClientThread extends Thread {
 
         } catch (IOException e) {
             System.err.println("Communication error... " + e);
-        } finally {
+        }
+        catch (InterruptedException e) {
+            System.err.println("Thread interrupted... " + e);
+        }
+            finally {
             try {
                 socket.close(); // or use try-with-resources
             } catch (IOException e) { System.err.println (e); }
@@ -49,5 +64,17 @@ public class ClientThread extends Thread {
     ///
     public boolean checkLoginCredentials(String user, String pass){
         return false;
+    }
+    public synchronized Integer getCurrentGroupID() {
+        return currentGroupID;
+    }
+    public synchronized void setCurrentGroupID(Integer currentGroupID) {
+        this.currentGroupID = currentGroupID;
+    }
+    public synchronized Date getLastRecievedMessageTime() {
+        return lastRecievedMessageTime;
+    }
+    public synchronized void setLastRecievedMessageTime(Date lastRecievedMessageTime) {
+        this.lastRecievedMessageTime=lastRecievedMessageTime;
     }
 }
